@@ -12,19 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type Arraytest struct {
-	ID         primitive.ObjectID `bson:"_id,omitempty" bson:"_id,omitempty"`
-	First_name string             `bson:"First_name,omitempty bson:"First_name,omitempty"`
-	Last_name  string             `bson:"Last_name,omitempty bson:"Last_name,omitempty"`
-	Username   string             `bson:"Username,omitempty bson:"Username,omitempty"`
-	Email      string             `bson:"Email,omitempty bson:"Email,omitempty"`
-	Password   string             `bson:"Password,omitempty bson:"Password,omitempty"`
-}
-
-// var emp1 = Arraytest{Name: "Idowu", Salary: 12345.09}
-
-// var client *mongo.Client
-
 var DB = connectDB()
 
 func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
