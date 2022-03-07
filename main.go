@@ -84,7 +84,7 @@ func postData(c *gin.Context) {
 		return
 	}
 	// Pass the hashed password into the payload here:
-	// Reason: hashing the password directly within the payload throw
+	// Reason: hashing the password directly within the payload doesn't throw
 	// correct error since hashed password is about 60 to 100 character long
 	newTest.Password = HashPassword(newTest.Password)
 
