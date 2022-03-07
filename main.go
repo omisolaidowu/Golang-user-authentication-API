@@ -2,22 +2,23 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
-
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Arraytest struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty" bson:"_id,omitempty"`
-	First_name string             `bson:"name,omitempty bson:"name,omitempty"`
-	Last_name  string             `bson:"name,omitempty bson:"name,omitempty"`
-	Username   string             `bson:"name,omitempty bson:"name,omitempty"`
-	Email      string             `bson:"name,omitempty bson:"name,omitempty"`
-	Password   float32            `bson:"salary,omitempty bson:"salary,omitempty"`
+	First_name string             `bson:"First_name,omitempty bson:"First_name,omitempty"`
+	Last_name  string             `bson:"Last_name,omitempty bson:"Last_name,omitempty"`
+	Username   string             `bson:"Username,omitempty bson:"Username,omitempty"`
+	Email      string             `bson:"Email,omitempty bson:"Email,omitempty"`
+	Password   string             `bson:"Password,omitempty bson:"Password,omitempty"`
 }
 
 // var emp1 = Arraytest{Name: "Idowu", Salary: 12345.09}
@@ -47,8 +48,54 @@ func postData(c *gin.Context) {
 		Last_name:  test.Last_name,
 		Username:   test.Username,
 		Email:      test.Email,
-		Password:   test.Password,
+		Password:   HashPassword(test.Password),
 	}
+	cursor, err := userCollection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var userInfo []bson.M
+	if err = cursor.All(ctx, &userInfo); err != nil {
+		log.Fatal(err)
+	}
+	// fmt.Println(userInfo)
+
+	var emails []string
+	var usernames []string
+
+	for i := 0; i < len(userInfo); i++ {
+		emails = append(emails, userInfo[i]["Email"].(string))
+		usernames = append(emails, userInfo[i]["Username"].(string))
+	}
+
+	var res bool = false
+	var userRes bool = false
+	for _, x := range emails {
+		if x == newTest.Email {
+			res = true
+			break
+		}
+	}
+
+	for _, x := range usernames {
+		if x == newTest.Username {
+			userRes = true
+			break
+		}
+	}
+	if len(newTest.Password) < 8 {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Password must be longer than 8 character"})
+		return
+	}
+
+	if res {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "This email exists"})
+		return
+	} else if userRes {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "This username exists"})
+		return
+	}
+
 	result, err := userCollection.InsertOne(ctx, newTest)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
@@ -93,7 +140,6 @@ func main() {
 	// router.POST("/postData", postData)
 	// router.GET("/getDatabyId/:id", getDatabyID)
 	router.Run("localhost: 5000")
-
 }
 
 // func main() {
