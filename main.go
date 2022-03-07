@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -35,7 +36,7 @@ func postData(c *gin.Context) {
 		Last_name:  test.Last_name,
 		Username:   test.Username,
 		Email:      test.Email,
-		Password:   HashPassword(test.Password),
+		Password:   test.Password,
 	}
 	cursor, err := userCollection.Find(ctx, bson.M{})
 	if err != nil {
@@ -70,18 +71,22 @@ func postData(c *gin.Context) {
 			break
 		}
 	}
-	if len(newTest.Password) < 8 {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Password must be longer than 8 character"})
-		return
-	}
 
 	if res {
+		fmt.Println(len(newTest.Password))
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "This email exists"})
 		return
 	} else if userRes {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "This username exists"})
 		return
+	} else if len(newTest.Password) < 8 {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Password must be longer than 8 character"})
+		return
 	}
+	// Pass the hashed password into the payload here:
+	// Reason: hashing the password directly within the payload throw
+	// correct error since hashed password is about 60 to 100 character long
+	newTest.Password = HashPassword(newTest.Password)
 
 	result, err := userCollection.InsertOne(ctx, newTest)
 	if err != nil {
