@@ -16,20 +16,20 @@ var DB = connectDB()
 func userReg(c *gin.Context) {
 	var userCollection = GetCollection(DB, "myUsers")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	test := new(User)
+	user := new(User)
 	defer cancel()
 
-	if err := c.BindJSON(&test); err != nil {
+	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "error"})
 		return
 	}
 	userPayload := User{
 		ID:         primitive.NewObjectID(),
-		First_name: test.First_name,
-		Last_name:  test.Last_name,
-		Username:   test.Username,
-		Email:      test.Email,
-		Password:   test.Password,
+		First_name: user.First_name,
+		Last_name:  user.Last_name,
+		Username:   user.Username,
+		Email:      user.Email,
+		Password:   user.Password,
 	}
 	cursor, err := userCollection.Find(ctx, bson.M{})
 	if err != nil {
