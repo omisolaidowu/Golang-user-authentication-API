@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -17,14 +16,14 @@ var DB = connectDB()
 func userReg(c *gin.Context) {
 	var userCollection = GetCollection(DB, "myUsers")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	test := new(Arraytest)
+	test := new(User)
 	defer cancel()
 
 	if err := c.BindJSON(&test); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "error"})
 		return
 	}
-	newTest := Arraytest{
+	userPayload := User{
 		ID:         primitive.NewObjectID(),
 		First_name: test.First_name,
 		Last_name:  test.Last_name,
@@ -42,47 +41,35 @@ func userReg(c *gin.Context) {
 	}
 	// fmt.Println(userInfo)
 
-	var emails []string
-	var usernames []string
+	var emailExists bool = false
+	var usernameExists bool = false
 
 	for i := 0; i < len(userInfo); i++ {
-		emails = append(emails, userInfo[i]["Email"].(string))
-		usernames = append(emails, userInfo[i]["Username"].(string))
-	}
-
-	var res bool = false
-	var userRes bool = false
-	for _, x := range emails {
-		if x == newTest.Email {
-			res = true
+		if userInfo[i]["Email"].(string) == userPayload.Email {
+			emailExists = true
+			break
+		} else if userInfo[i]["Username"].(string) == userPayload.Username {
+			usernameExists = true
 			break
 		}
 	}
 
-	for _, x := range usernames {
-		if x == newTest.Username {
-			userRes = true
-			break
-		}
-	}
-
-	if res {
-		fmt.Println(len(newTest.Password))
+	if emailExists {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "This email exists"})
 		return
-	} else if userRes {
+	} else if usernameExists {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "This username exists"})
 		return
-	} else if len(newTest.Password) < 8 {
+	} else if len(userPayload.Password) < 8 {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Password must be longer than 8 character"})
 		return
 	}
 	// Pass the hashed password into the payload here:
 	// Reason: hashing the password directly within the payload doesn't throw
 	// correct error since hashed password is about 60 to 100 character long
-	newTest.Password = HashPassword(newTest.Password)
+	userPayload.Password = HashPassword(userPayload.Password)
 
-	result, err := userCollection.InsertOne(ctx, newTest)
+	result, err := userCollection.InsertOne(ctx, userPayload)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err})
 		return
