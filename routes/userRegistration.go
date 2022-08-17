@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	getcollection "user/Desktop/Desktop/go_code/Collection"
-	database "user/Desktop/Desktop/go_code/databases"
-	passwordhash "user/Desktop/Desktop/go_code/hashpassword"
-	model "user/Desktop/Desktop/go_code/model"
+	getcollection "go_code/Collection"
+	database "go_code/databases"
+	passwordhash "go_code/hashpassword"
+	model "go_code/model"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
