@@ -49,10 +49,10 @@ func UserReg(c *gin.Context) {
 	var usernameExists bool = false
 
 	for i := 0; i < len(userInfo); i++ {
-		if userInfo[i]["Email"].(string) == userPayload.Email {
+		if userInfo[i]["Email"] == userPayload.Email {
 			emailExists = true
 			break
-		} else if userInfo[i]["Username"].(string) == userPayload.Username {
+		} else if userInfo[i]["Username"] == userPayload.Username {
 			usernameExists = true
 			break
 		}

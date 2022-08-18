@@ -47,7 +47,7 @@ func Login(c *gin.Context) {
 	// Authenticating user credentials and checking password hash:
 
 	for i := 0; i < len(userInfo); i++ {
-		if userInfo[i]["Username"].(string) == userLoginDetails.Username &&
+		if userInfo[i]["Username"] == userLoginDetails.Username &&
 			passwordhash.CheckPasswordHash(userLoginDetails.Password, userInfo[i]["Password"].(string)) {
 			UserConfirmed = true
 			break

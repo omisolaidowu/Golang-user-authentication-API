@@ -15,13 +15,14 @@ import (
 func ConnectDB() *mongo.Client {
 	godotenv.Load(".env")
 
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://" + os.Getenv("URL")))
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("URL2")))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
+
 	if err != nil {
 		log.Fatal(err)
 	}
